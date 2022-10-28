@@ -33,6 +33,7 @@ export function main(_p5) {
     const heart = {}
     const smile = {}
     const checkers = {}
+    const diagonal = {}
 
     if (p5.mouseIsPressed) {
       if (0 < p5.mouseX < 600 && 0 < p5.mouseY < 600) {
@@ -58,6 +59,13 @@ export function main(_p5) {
             checkers.y = roundNearest(p5.mouseY, size)
             checkers.color = color
             checkers.size = size
+            break
+          case 'diagonal':
+            diagonal.x = roundNearest(p5.mouseX, size)
+            diagonal.y = roundNearest(p5.mouseY, size)
+            diagonal.color = color
+            diagonal.size = size
+            break
         }
       }
     }
@@ -68,6 +76,11 @@ export function main(_p5) {
     if (Object.keys(checkers).length !== 0) {
       paintCheckers(checkers)
     }
+
+    if (Object.keys(diagonal).length !== 0) {
+      paintDiagonal(diagonal)
+    }
+
     if (Object.keys(heart).length !== 0) {
       paintHeart(heart)
     }
@@ -168,6 +181,19 @@ function paintCheckers(checkers) {
       }
       if (j !== 9) {
         on = !on
+      }
+    }
+  }
+}
+
+function paintDiagonal(diagonal) {
+  let on = true
+  for (let i = 0; i < diagonal.size / 10; i++) {
+    for (let j = 0; j < diagonal.size / 10; j++) {
+      if (i === j) {
+        p5.stroke(0)
+        p5.fill(diagonal.color)
+        p5.square(diagonal.x + i * 10, diagonal.y + j * 10, 10)
       }
     }
   }
