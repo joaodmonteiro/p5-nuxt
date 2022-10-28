@@ -1,11 +1,24 @@
 <template>
   <main>
     <div id="container"></div>
-    <div class="buttons">
-      <button @click="changeColor('#F50000')">Red</button>
-      <button @click="changeColor('#3CC700')">Green</button>
-      <button @click="changeColor('#0030C7')">Blue</button>
-    </div>
+    <select name="pencil" id="pencil" v-model="pencil">
+      <option value="square">Square</option>
+      <option value="checkers">Checkers</option>
+      <option value="heart">Heart</option>
+      <option value="smile">Smile</option>
+    </select>
+    <select name="color" id="color" v-model="color">
+      <option value="#000000">Black</option>
+      <option value="#FFFFFF">White</option>
+      <option value="#F50000">Red</option>
+      <option value="#3CC700">Green</option>
+      <option value="#0030C7">Blue</option>
+    </select>
+    <select v-if="pencil === 'square' || pencil === 'checkers'" name="size" id="size" v-model="size">
+      <option value="10">10px</option>
+      <option value="50">50px</option>
+      <option value="100">100px</option>
+    </select>
   </main>
 </template>
 
@@ -15,7 +28,9 @@ export default {
   name: 'IndexPage',
   data() {
     return {
-      color: '#F50000'
+      color: '#000000',
+      size: 10,
+      pencil: 'square'
     }
   },
   mounted() {
@@ -23,23 +38,19 @@ export default {
     new P5(canvas.main)
 
     canvas.setColor(this.color)
+    canvas.setSize(this.size)
+    canvas.setPencil(this.pencil)
   },
-  methods: {
-    changeColor(newColor) {
-      this.color = newColor
+  watch: {
+    size() {
+      canvas.setSize(this.size)
+    },
+    color() {
       canvas.setColor(this.color)
+    },
+    pencil() {
+      canvas.setPencil(this.pencil)
     }
-  }
+  },
 }
 </script>
-
-<!-- <style >
-main {
-  display: ;
-  place-items: center;
-  width: 100vw;
-  height: 100vh;
-
-
-}
-</style> -->
