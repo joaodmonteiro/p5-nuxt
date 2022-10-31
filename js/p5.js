@@ -10,6 +10,7 @@ let yoff = 0
 let fps
 let diyPencilPositions = {}
 let brushSize = 50
+let stroke
 
 export function main(_p5) {
   p5 = _p5
@@ -48,6 +49,8 @@ export function main(_p5) {
     const diagonal = {}
     const houndstooth = {}
     const diy = {}
+    const circle = {}
+    const triangle = {}
 
     if (p5.mouseIsPressed) {
       if (0 < p5.mouseX < 600 && 0 < p5.mouseY < 600) {
@@ -86,6 +89,18 @@ export function main(_p5) {
             houndstooth.color = color
             // houndstooth.size = size
             break
+          case 'circle':
+            circle.x = roundNearest(p5.mouseX, size)
+            circle.y = roundNearest(p5.mouseY, size)
+            circle.color = color
+            circle.size = size
+            break
+          case 'triangle':
+            triangle.x = roundNearest(p5.mouseX, size)
+            triangle.y = roundNearest(p5.mouseY, size)
+            triangle.color = color
+            triangle.size = size
+            break
           case 'diy':
             diy.x = roundNearest(p5.mouseX, brushSize)
             diy.y = roundNearest(p5.mouseY, brushSize)
@@ -119,6 +134,15 @@ export function main(_p5) {
       paintHoundstooth(houndstooth)
     }
 
+    if (Object.keys(circle).length !== 0) {
+      paintCircle(circle)
+    }
+
+    if (Object.keys(triangle).length !== 0) {
+      paintTriangle(triangle)
+      console.log(triangle)
+    }
+
     if (Object.keys(diy).length !== 0) {
       paintDiy(diy)
     }
@@ -132,7 +156,11 @@ export function setColor(_color) {
 }
 
 export function setSize(_size) {
-  size = _size
+  size = parseInt(_size)
+}
+
+export function setStroke(_stroke) {
+  stroke = _stroke
 }
 
 export function setPencil(_pencil) {
@@ -171,7 +199,11 @@ function paintHeart(heart) {
     [4, 2],
   ]
   heartPositions.forEach((position) => {
-    p5.stroke(0)
+    if (!stroke) {
+      p5.noStroke()
+    } else {
+      p5.stroke(0)
+    }
     if (noise) {
       p5.fill(
         getNoiseColor(
@@ -189,22 +221,13 @@ function paintHeart(heart) {
 }
 
 function paintSquare(square) {
-  p5.stroke(0)
-  if (noise) {
-    setGradient(
-      p5,
-      square.x,
-      square.y,
-      square.size,
-      square.size,
-      p5.color(200, 13, 40),
-      p5.color(0, 200, 150),
-      'X_AXIS'
-    )
+  if (!stroke) {
+    p5.noStroke()
   } else {
-    p5.fill(square.color)
-    p5.square(square.x, square.y, square.size)
+    p5.stroke(0)
   }
+  p5.fill(square.color)
+  p5.square(square.x, square.y, square.size)
 }
 
 function paintSmile(smile) {
@@ -234,7 +257,11 @@ function paintSmile(smile) {
   ]
 
   smilePositions.forEach((position) => {
-    p5.stroke(0)
+    if (!stroke) {
+      p5.noStroke()
+    } else {
+      p5.stroke(0)
+    }
     p5.fill(smile.color)
     p5.square(smile.x + position[0] * 10, smile.y + position[1] * 10, 10)
   })
@@ -248,7 +275,11 @@ function paintCheckers(checkers) {
     let yoff = 0
     for (let j = 0; j < checkers.size / 10; j++) {
       if (on) {
-        p5.stroke(0)
+        if (!stroke) {
+          p5.noStroke()
+        } else {
+          p5.stroke(0)
+        }
         if (noise) {
           p5.fill(
             getNoiseColor(p5, color, checkers.x + i * 10, checkers.y + j * 10)
@@ -272,7 +303,11 @@ function paintDiagonal(diagonal) {
   for (let i = 0; i < diagonal.size / 10; i++) {
     for (let j = 0; j < diagonal.size / 10; j++) {
       if (i === j) {
-        p5.stroke(0)
+        if (!stroke) {
+          p5.noStroke()
+        } else {
+          p5.stroke(0)
+        }
         if (noise) {
           p5.fill(
             getNoiseColor(
@@ -313,7 +348,11 @@ function paintHoundstooth(houndstooth) {
   ]
 
   houndstoothPositions.forEach((position) => {
-    p5.stroke(0)
+    if (!stroke) {
+      p5.noStroke()
+    } else {
+      p5.stroke(0)
+    }
     if (noise) {
       p5.fill(
         getNoiseColor(p5, houndstooth.color, houndstooth.x, houndstooth.y)
@@ -329,6 +368,47 @@ function paintHoundstooth(houndstooth) {
   })
 }
 
+function paintCircle(circle) {
+  if (!stroke) {
+    p5.noStroke()
+  } else {
+    p5.stroke(0)
+  }
+  p5.fill(circle.color)
+  p5.ellipse(
+    circle.x + circle.size / 2,
+    circle.y + circle.size / 2,
+    circle.size,
+    circle.size
+  )
+}
+
+function paintTriangle(triangle) {
+  if (!stroke) {
+    p5.noStroke()
+  } else {
+    p5.stroke(0)
+  }
+  p5.fill(triangle.color)
+  p5.triangle(
+    triangle.x,
+    triangle.y + triangle.size,
+    triangle.x + triangle.size / 2,
+    triangle.y,
+    triangle.x + triangle.size,
+    triangle.y + triangle.size
+  )
+
+  console.log(
+    triangle.x,
+    triangle.y + triangle.size,
+    triangle.x + triangle.size / 2,
+    triangle.y,
+    triangle.x + triangle.size,
+    triangle.y + triangle.size
+  )
+}
+
 function paintDiy(diy) {
   if (Object.keys(diyPencilPositions).length === 0) return
 
@@ -336,7 +416,11 @@ function paintDiy(diy) {
     if (Object.keys(diyPencilPositions[y]).length === 0) return
     Object.keys(diyPencilPositions[y]).forEach((x) => {
       if (diyPencilPositions[y][x] === true) {
-        p5.stroke(0)
+        if (!stroke) {
+          p5.noStroke()
+        } else {
+          p5.stroke(0)
+        }
         if (noise) {
           p5.fill(getNoiseColor(p5, diy.color, diy.x + x * 10, diy.y + y * 10))
         } else {
@@ -347,22 +431,21 @@ function paintDiy(diy) {
       }
     })
   })
+}
 
-  // diyPencilPositions.forEach((position) => {
-  //   p5.stroke(0)
-  //   if (noise) {
-  //     p5.fill(
-  //       getNoiseColor(
-  //         p5,
-  //         diy.color,
-  //         diy.x + position[0] * 10,
-  //         diy.y + position[1] * 10
-  //       )
-  //     )
-  //   } else {
-  //     p5.fill(diy.color)
-  //   }
+export function clearCanvas() {
+  const squareWidth = 10
+  const squares = []
 
-  //   p5.square(diy.x + position[1] * 10, diy.y + position[0] * 10, 10)
-  // })
+  for (let i = 0; i < 60; i++) {
+    for (let j = 0; j < 60; j++) {
+      squares.push([i * squareWidth, j * squareWidth])
+    }
+  }
+
+  squares.forEach((sq) => {
+    p5.stroke(200)
+    p5.fill(255)
+    p5.square(sq[0], sq[1], squareWidth)
+  })
 }

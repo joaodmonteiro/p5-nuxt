@@ -3,40 +3,51 @@
     <div id="container"></div>
     <select name="pencil" id="pencil" v-model="pencil">
       <option value="square">Square</option>
+      <option value="circle">Circle</option>
+      <option value="triangle">Triangle</option>
       <option value="checkers">Checkers</option>
       <option value="diagonal">Diagonal</option>
       <option value="heart">Heart</option>
-      <option value="smile">Smile</option>
+      <option value="smile">Batman</option>
       <option value="houndstooth">Houndstooth</option>
-      <option value="diy">My own brush</option>
+      <option value="diy">Custom brush</option>
     </select>
-    <select name="color" id="color" v-model="color">
+    <input v-if="!noise" type="color" id="color" v-model="color">
+    <select v-else name="color" id="color" v-model="color">
       <option value="#000000">Black</option>
-      <option value="#FFFFFF">White</option>
+      <!-- <option value="#FFFFFF">White</option> -->
       <option value="#F50000">Red</option>
       <option value="#3CC700">Green</option>
       <option value="#0030C7">Blue</option>
     </select>
-    <input type="checkbox" name="Perlin Noise" id="noise" value="noise" v-model="noise">
-    <label for="noise">Perlin Noise</label>
-    <select v-if="pencil === 'square' || pencil === 'checkers' || pencil === 'diagonal'" name="size" id="size"
-      v-model="size">
+    <select
+      v-if="pencil === 'square' || pencil === 'checkers' || pencil === 'diagonal' || pencil === 'circle' || pencil === 'triangle'"
+      name="size" id="size" v-model="size">
       <option value="10">10px</option>
       <option value="50">50px</option>
       <option value="100">100px</option>
     </select>
+    <input type="checkbox" name="stroke" value="stroke" id="stroke" v-model="stroke">
+    <label for="stroke">Stroke</label>
+    <button @click="clearCanvas()">Clear canvas!</button>
+    <div v-if="pencil !== 'square'">
+      <input type="checkbox" name="Perlin Noise" id="noise" value="noise" v-model="noise">
+      <label for="noise">Perlin Noise</label>
+    </div>
+
     <div class="pencil-maker">
       <div class="pencil-maker__row" v-for="y in parseInt(brushSize)">
         <div class="pencil-maker__item" v-for="x in parseInt(brushSize)"
           :class="{ selected: diyPencilPositions[x - 1] && diyPencilPositions[x - 1][y - 1] === true }"
-          @click="toggleSquare(x - 1, y - 1)">
+          @mouseover="mouseDown && toggleSquare(x - 1, y - 1)" @mousedown="toggleSquare(x - 1, y - 1)">
         </div>
       </div>
     </div>
     <div class="brush-size">
-      <input class="brush-size__slider" type="range" min="5" max="10" value="5" id="brushSize" v-model="brushSize">
+      <input class="brush-size__slider" type="range" min="5" max="20" value="5" id="brushSize" v-model="brushSize">
     </div>
     <label for="brushSize">{{ brushSize }}</label>
+    <button @click="clearBrush()">Clear Brush</button>
   </main>
 </template>
 
@@ -51,7 +62,9 @@ export default {
       pencil: 'square',
       noise: false,
       diyPencilPositions: {},
-      brushSize: 5
+      brushSize: 5,
+      mouseDown: false,
+      stroke: false
     }
   },
   computed: {
@@ -68,10 +81,20 @@ export default {
     canvas.setColor(this.color)
     canvas.setSize(this.size)
     canvas.setPencil(this.pencil)
+
+    document.addEventListener('mousedown', () => this.mouseDown = true)
+    document.addEventListener('mouseup', () => this.mouseDown = false)
+  },
+  beforeDestroy() {
+    document.removeEventListener('mousedown', () => this.mouseDown = true)
+    document.removeEventListener('mouseup', () => this.mouseDown = false)
   },
   watch: {
     size() {
       canvas.setSize(this.size)
+    },
+    stroke() {
+      canvas.setStroke(this.stroke)
     },
     color() {
       canvas.setColor(this.color)
@@ -120,6 +143,14 @@ export default {
 
       this.diyPencilPositions = newObj
       console.log(this.diyPencilPositions)
+    },
+    clearBrush() {
+      const emptyObj = {}
+
+      this.diyPencilPositions = emptyObj
+    },
+    clearCanvas() {
+      canvas.clearCanvas()
     }
   }
 }
