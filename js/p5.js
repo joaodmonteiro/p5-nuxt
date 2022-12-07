@@ -1,3 +1,5 @@
+import figlet from 'figlet'
+
 let p5
 let fps
 let text
@@ -20,9 +22,11 @@ let blue = 100
 let redOff = 0
 let greenOff = 3
 let blueOff = 8
-let textSize = 100
+let fontSize = 100
 let colour = false
 let paused = false
+let mouseX = 0
+let mouseY = 0
 
 export function main(_p5) {
   p5 = _p5
@@ -51,9 +55,12 @@ export function main(_p5) {
     p5.clear()
 
     if (!paused) {
-      drawText()
-      drawTiles()
+      mouseX = p5.mouseX
+      mouseY = p5.mouseY
     }
+
+    drawText()
+    drawTiles()
 
     // p5.image(gridLayer, 0, 0)
     // p5.image(textLayer, 0, 0)
@@ -64,6 +71,7 @@ export function main(_p5) {
 
 export function setText(_text) {
   text = _text
+
   drawText()
 }
 
@@ -92,6 +100,10 @@ export function setColour(_colour) {
   colour = _colour
 }
 
+export function setFontSize(_fontSize) {
+  fontSize = parseInt(_fontSize)
+}
+
 export function downloadImage() {
   p5.saveCanvas(canvas, 'yes', 'jpg')
 }
@@ -100,7 +112,7 @@ const roundNearest = (value, nearest) => Math.floor(value / nearest) * nearest
 
 export function drawText() {
   textLayer.clear()
-  textLayer.textSize(textSize)
+  textLayer.textSize(fontSize)
   textLayer.textAlign(p5.CENTER, p5.CENTER)
   textLayer.background(0)
   if (colour) {
@@ -153,8 +165,8 @@ export function drawTiles() {
       }
 
       const offsetSource = {
-        x: p5.mouseX,
-        y: p5.mouseY,
+        x: mouseX,
+        y: mouseY,
       }
 
       const offsetIndexX = offsetSource.x / (canvasX / 2) - 1

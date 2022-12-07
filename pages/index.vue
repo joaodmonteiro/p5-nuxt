@@ -2,11 +2,13 @@
   <main>
     <div id="container"></div>
     <div class="controls">
-      <input type="text" v-model="text">
+      <input type="text" v-model="text" class="text-input">
       <label for="tileSize">Tile Size</label>
       <input type="range" min="4" max="50" value="25" v-model="tileSize">
       <label for="sampleSize">Sample Size</label>
       <input type="range" min="25" max="50" value="25" v-model="sampleSize">
+      <label for="fontSize">Font Size</label>
+      <input type="range" min="20" max="400" value="100" v-model="fontSize">
       <label for="colour">Colour</label>
       <input type="checkbox" v-model="colour" id="colour">
       <button @click="download">Download Image</button>
@@ -26,7 +28,8 @@ export default {
       shouldWait: false,
       canvasX: 0,
       canvasY: 0,
-      colour: false
+      colour: false,
+      fontSize: 100
     }
   },
   computed: {
@@ -61,6 +64,9 @@ export default {
     },
     colour() {
       canvas.setColour(this.colour)
+    },
+    fontSize() {
+      canvas.setFontSize(this.fontSize)
     }
   },
   methods: {
