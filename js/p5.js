@@ -11,8 +11,8 @@ let offsetX = 0
 let offsetY = 0
 let xOff = 0
 let yOff = 9
-let canvasX = 800
-let canvasY = 400
+let canvasX = 1025
+let canvasY = 768
 let canvas
 let red = 50
 let green = 255
@@ -35,11 +35,11 @@ export function main(_p5) {
     fps = p5.createP('')
 
     textLayer = p5.createGraphics(canvasX, canvasY)
-    gridLayer = p5.createGraphics(800, 400)
+    // gridLayer = p5.createGraphics(800, 400)
     newLayer = p5.createGraphics(canvasX, canvasY)
 
     canvas.mouseReleased(() => {
-      if (p5.mouseX < 800 && p5.mouseY < 400) {
+      if (p5.mouseX < canvasX && p5.mouseY < canvasY) {
         paused = !paused
       }
     })

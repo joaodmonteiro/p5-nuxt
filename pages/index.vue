@@ -98,6 +98,6 @@ main {
   border: 1px solid black;
   display: flex;
   justify-content: center;
-  width: 800px;
+  width: 1025px;
 }
 </style>
