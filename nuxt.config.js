@@ -36,4 +36,7 @@ export default {
   build: {},
 
   target: 'static',
+  router: {
+    base: '/p5-nuxt/',
+  },
 }
