@@ -1,13 +1,16 @@
 <template>
   <main>
     <div id="container"></div>
-    <input type="text" v-model="text">
-    <label for="offsetX">Offset X</label>
-    <input type="range" min="0" :max="tileSize" value="0" v-model="offsetX">
-    <label for="offsetY">Offset Y</label>
-    <input type="range" min="0" :max="tileSize" value="0" v-model="offsetY">
-    <label for="tileSize">Tile Size</label>
-    <input type="range" min="10" max="100" value="50" step="5" v-model="tileSize">
+    <div class="controls">
+      <input type="text" v-model="text">
+      <label for="tileSize">Tile Size</label>
+      <input type="range" min="4" max="50" value="25" v-model="tileSize">
+      <label for="sampleSize">Sample Size</label>
+      <input type="range" min="25" max="50" value="25" v-model="sampleSize">
+      <label for="colour">Colour</label>
+      <input type="checkbox" v-model="colour" id="colour">
+      <button @click="download">Download Image</button>
+    </div>
   </main>
 </template>
 
@@ -18,9 +21,12 @@ export default {
   data() {
     return {
       text: '',
-      offsetX: 0,
-      offsetY: 0,
-      tileSize: 50
+      tileSize: 25,
+      sampleSize: 25,
+      shouldWait: false,
+      canvasX: 0,
+      canvasY: 0,
+      colour: false
     }
   },
   computed: {
@@ -30,35 +36,68 @@ export default {
     const P5 = require('p5')
     new P5(canvas.main)
 
+    this.handleResize()
+
+    window.addEventListener('resize', this.handleResize)
+
   },
   beforeDestroy() {
   },
   watch: {
     text() {
       canvas.setText(this.text)
-      canvas.copyTiles()
-    },
-    offsetX() {
-      canvas.setOffsetX(this.offsetX)
-      canvas.copyTiles()
-    },
-    offsetY() {
-      canvas.setOffsetY(this.offsetY)
-      canvas.copyTiles()
     },
     tileSize() {
       canvas.setTileSize(this.tileSize)
-      canvas.copyTiles()
+    },
+    sampleSize() {
+      canvas.setSampleSize(this.sampleSize)
+    },
+    canvasX() {
+      canvas.setCanvasSize(this.canvasX, this.canvasY)
+    },
+    canvasY() {
+      canvas.setCanvasSize(this.canvasX, this.canvasY)
+    },
+    colour() {
+      canvas.setColour(this.colour)
     }
   },
   methods: {
+    throttle(cb, delay = 250) {
 
+      return (...args) => {
+        if (this.shouldWait) return
+
+        cb(...args)
+        this.shouldWait = true
+        setTimeout(() => {
+          this.shouldWait = false
+        }, delay)
+      }
+    },
+    handleResize() {
+      this.canvasX = window.innerWidth
+      this.canvasY = window.innerHeight - 200
+    },
+    download() {
+      canvas.downloadImage()
+    }
   }
 }
 </script>
 
 <style>
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 #container {
   border: 1px solid black;
+  display: flex;
+  justify-content: center;
+  width: 800px;
 }
 </style>
