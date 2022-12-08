@@ -1,14 +1,13 @@
-import figlet from 'figlet'
-
 let p5
 let fps
 let text
 let textLayer
 let gridLayer
 let newLayer
-let sampleSize = 25
-let tileSize = 25
-let tiles = {}
+let sampleSizeX
+let sampleSizeY
+let tileSizeX
+let tileSizeY
 let offsetX = 0
 let offsetY = 0
 let xOff = 0
@@ -24,9 +23,11 @@ let greenOff = 3
 let blueOff = 8
 let fontSize = 100
 let colour = false
-let paused = false
-let mouseX = 0
-let mouseY = 0
+let paused = true
+let mouseX = canvasX / 2
+let mouseY = canvasY / 2
+let pixelDensity
+let grid = true
 
 export function main(_p5) {
   p5 = _p5
@@ -34,12 +35,13 @@ export function main(_p5) {
 
   // NOTE: Set up is here
   p5.setup = (_) => {
+    pixelDensity = p5.pixelDensity()
     canvas = p5.createCanvas(canvasX, canvasY)
     canvas.parent('container')
     fps = p5.createP('')
 
     textLayer = p5.createGraphics(canvasX, canvasY)
-    // gridLayer = p5.createGraphics(800, 400)
+    gridLayer = p5.createGraphics(canvasX, canvasY)
     newLayer = p5.createGraphics(canvasX, canvasY)
 
     canvas.mouseReleased(() => {
@@ -62,9 +64,13 @@ export function main(_p5) {
     drawText()
     drawTiles()
 
-    // p5.image(gridLayer, 0, 0)
-    // p5.image(textLayer, 0, 0)
     p5.image(newLayer, 0, 0)
+    if (grid) {
+      drawGrid()
+      p5.image(gridLayer, 0, 0)
+    }
+
+    // p5.image(textLayer, 0, 0)
     // p5.image(cursorLayer, 0, 0)
   }
 }
@@ -84,16 +90,13 @@ export function setOffsetY(_offsetY) {
 }
 
 export function setTileSize(_tileSize) {
-  tileSize = parseInt(_tileSize)
+  tileSizeX = canvasX / parseInt(_tileSize)
+  tileSizeY = canvasY / parseInt(_tileSize)
 }
 
 export function setSampleSize(_sampleSize) {
-  sampleSize = parseInt(_sampleSize)
-}
-
-export function setCanvasSize(_canvasX, _canvasY) {
-  // p5.resizeCanvas(parseInt(_canvasX), parseInt(_canvasY))
-  console.log(_canvasX)
+  sampleSizeX = canvasX / parseInt(_sampleSize)
+  sampleSizeY = canvasY / parseInt(_sampleSize)
 }
 
 export function setColour(_colour) {
@@ -104,17 +107,23 @@ export function setFontSize(_fontSize) {
   fontSize = parseInt(_fontSize)
 }
 
+export function setGrid(_grid) {
+  grid = _grid
+}
+
 export function downloadImage() {
+  p5.pixelDensity(1)
   p5.saveCanvas(canvas, 'yes', 'jpg')
+  p5.pixelDensity(pixelDensity)
 }
 
 const roundNearest = (value, nearest) => Math.floor(value / nearest) * nearest
 
 export function drawText() {
   textLayer.clear()
+  textLayer.textLeading(fontSize)
   textLayer.textSize(fontSize)
   textLayer.textAlign(p5.CENTER, p5.CENTER)
-  textLayer.background(0)
   if (colour) {
     textLayer.fill(red, green, blue)
 
@@ -155,13 +164,14 @@ export function drawTiles() {
 
   newLayer.background(0)
 
-  const maxOffset = tileSize
+  const maxOffsetX = tileSizeX
+  const maxOffsetY = tileSizeY
 
-  for (let y = 0; y < canvasY; y += tileSize) {
-    for (let x = 0; x < canvasX; x += tileSize) {
+  for (let y = 0; y < canvasY; y += tileSizeY) {
+    for (let x = 0; x < canvasX; x += tileSizeX) {
       const source = {
-        x: roundNearest(x, sampleSize),
-        y: roundNearest(y, sampleSize),
+        x: roundNearest(x + tileSizeX / 2, sampleSizeX),
+        y: roundNearest(y + tileSizeY / 2, sampleSizeY),
       }
 
       const offsetSource = {
@@ -172,66 +182,48 @@ export function drawTiles() {
       const offsetIndexX = offsetSource.x / (canvasX / 2) - 1
       const offsetIndexY = offsetSource.y / (canvasY / 2) - 1
 
-      const maxOffsetX = -offsetIndexX * (sampleSize * 40)
-      const maxOffsetY = -offsetIndexY * (sampleSize * 40)
+      // offsetX = ((x - canvasX / 2) / canvasX) * maxOffsetX
+      // offsetY = ((y - canvasY / 2) / canvasY) * maxOffsetY
 
-      offsetX = ((x - canvasX / 2) / canvasX) * maxOffsetX
-      offsetY = ((y - canvasY / 2) / canvasY) * maxOffsetY
+      const centerX = x + tileSizeX / 2
+      const centerY = y + tileSizeY / 2
+
+      offsetX = -(offsetIndexX * (centerX - canvasX / 2)) * 2.5
+      offsetY = -(offsetIndexY * (centerY - canvasY / 2)) * 2.5
 
       newLayer.image(
         textLayer,
         x,
         y,
-        tileSize,
-        tileSize,
+        tileSizeX,
+        tileSizeY,
         source.x + offsetX,
         source.y + offsetY,
-        sampleSize,
-        sampleSize
+        sampleSizeX,
+        sampleSizeY
       )
 
-      xOff += (sampleSize / canvasX) * 0.00001
-      yOff += (sampleSize / canvasY) * 0.00001
+      xOff += (sampleSizeX / canvasX) * 0.00001
+      yOff += (sampleSizeY / canvasY) * 0.00001
     }
   }
 }
 
-// export function copyTiles() {
-//   const emptyObj = {}
-//   tiles = emptyObj
-//   for (let i = 0; i < 400 / tileSize; i++) {
-//     for (let j = 0; j < 800 / tileSize; j++) {
-//       let tileImage = p5.createImage(tileSize, tileSize)
-//       tileImage.copy(
-//         textLayer,
-//         (Math.floor(j / 2) + 1) * tileSize - offsetX * j,
-//         (Math.floor(i / 2) + 1) * tileSize - offsetY * i,
-//         tileSize,
-//         tileSize,
-//         0,
-//         0,
-//         tileSize,
-//         tileSize
-//       )
+export function drawGrid() {
+  gridLayer.clear()
+  for (let y = 0; y < canvasY; y += tileSizeY) {
+    for (let x = 0; x < canvasX; x += tileSizeX) {
+      gridLayer.noFill()
+      gridLayer.stroke(50)
+      gridLayer.rect(x, y, tileSizeX, tileSizeY)
+    }
+  }
 
-//       const x = j * tileSize
-//       const y = i * tileSize
-
-//       if (tiles[x]) {
-//         if (tiles[x][y]) {
-//           tiles[x][y] = tileImage
-//         } else {
-//           tiles[x] = {
-//             ...tiles[x],
-//             [y]: tileImage,
-//           }
-//         }
-//       } else {
-//         tiles = {
-//           ...tiles,
-//           [x]: { [y]: tileImage },
-//         }
-//       }
-//     }
-//   }
-// }
+  for (let y = 0; y < canvasY; y += sampleSizeY) {
+    for (let x = 0; x < canvasX; x += sampleSizeX) {
+      gridLayer.noFill()
+      gridLayer.stroke(255, 0, 0, 0.1)
+      gridLayer.rect(x, y, sampleSizeX, sampleSizeY)
+    }
+  }
+}
