@@ -23,6 +23,8 @@ let greenOff = 3
 let blueOff = 8
 let fontSize = 100
 let colour = false
+let foregroundColor = '#fafafa'
+let backgroundColor = '#000003'
 let paused = true
 let mouseX = canvasX / 2
 let mouseY = canvasY / 2
@@ -99,8 +101,12 @@ export function setSampleSize(_sampleSize) {
   sampleSizeY = canvasY / parseInt(_sampleSize)
 }
 
-export function setColour(_colour) {
-  colour = _colour
+export function setForegroundColor(_color) {
+  foregroundColor = _color
+}
+
+export function setBackgroundColor(_color) {
+  backgroundColor = _color
 }
 
 export function setFontSize(_fontSize) {
@@ -124,15 +130,7 @@ export function drawText() {
   textLayer.textLeading(fontSize)
   textLayer.textSize(fontSize)
   textLayer.textAlign(p5.CENTER, p5.CENTER)
-  if (colour) {
-    textLayer.fill(red, green, blue)
-
-    red = p5.noise(redOff) * 255
-    green = p5.noise(greenOff) * 255
-    blue = p5.noise(blueOff) * 255
-  } else {
-    textLayer.fill(255)
-  }
+  textLayer.fill(foregroundColor)
 
   redOff += 0.002
   greenOff += 0.002
@@ -162,7 +160,7 @@ export function drawTiles() {
   //   })
   // })
 
-  newLayer.background(0)
+  newLayer.background(backgroundColor)
 
   const maxOffsetX = tileSizeX
   const maxOffsetY = tileSizeY
